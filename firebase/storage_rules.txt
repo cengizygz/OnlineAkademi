@@ -1,0 +1,35 @@
+// Firebase Storage Rules (Firebase konsolunda ayarlanması gerekir)
+// https://console.firebase.google.com/ adresine gidip projenizin Storage > Rules kısmına bu kuralları yapıştırın:
+
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Tüm dosya yükleme ve okuma işlemlerine izin ver
+    match /files/{allPaths=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // Test dosyalarına herkes erişebilir - bu kısım artık gereksiz, files/ altında test ettiğimiz için
+    match /test_connection.txt {
+      allow read, write;
+    }
+    
+    // Ödevler için dosya izinleri - Önemli değişiklik:
+    // Artık hem öğretmenler hem de öğrenciler tüm ödev dosyalarını görebilir
+    match /homework_{homeworkId}_{userId}/{allPaths=**} {
+      // Herhangi bir kimliği doğrulanmış kullanıcı okuyabilir
+      allow read: if request.auth != null;
+      // Sadece ilgili öğrenci yazabilir
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Öğretmenler için dosya izinleri - Önemli değişiklik:
+    // Artık hem öğretmenler hem de öğrenciler tüm öğretmen dosyalarını görebilir
+    match /teacher_homework_{homeworkId}_{teacherId}/{allPaths=**} {
+      // Herhangi bir kimliği doğrulanmış kullanıcı okuyabilir
+      allow read: if request.auth != null;
+      // Sadece ilgili öğretmen yazabilir
+      allow write: if request.auth != null && request.auth.uid == teacherId;
+    }
+  }
+} 
