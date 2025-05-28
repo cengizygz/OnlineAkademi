@@ -44,7 +44,6 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       setState(() {
         _isLoading = true;
-        _errorMessage = '';
       });
 
       try {
